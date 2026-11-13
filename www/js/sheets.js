@@ -1,0 +1,46 @@
+(function(){'use strict';var Q=TQ,D=Q.D,S=Q.S,A=Q.ACT,esc=Q.esc,ic=Q.ic,hd=Q.hd,open=Q.open,n2=Q.n2,money=Q.money,trim=Q.trim,fdate=Q.fdate,$=Q.$;
+var KN={line:'غرض',vendor:'بائع',trip:'جولة'},IT=null,TR=null;
+A.hist=function(){var h=hd('السجل')+'<div class="seg3"><button data-a="hv" data-id="0" class="'+(S.hv===0?'on':'')+'">الأغراض</button><button data-a="hv" data-id="1" class="'+(S.hv===1?'on':'')+'">الجولات</button></div>';
+if(S.hv===0){var ns=Object.keys(D.P).filter(function(n){return D.P[n].length}).sort(function(a,b){return D.P[b][D.P[b].length-1].t-D.P[a][D.P[a].length-1].t});
+h+=ns.length?'<div class="list">'+ns.map(function(n){var P=D.P[n],l=P[P.length-1],pv=P.length>1?P[P.length-2]:null,u=(D.I[n]||{}).u,ar=pv&&l.m!=='a'&&pv.m===l.m?(l.p<pv.p?'<span class="lo">↓</span> ':l.p>pv.p?'<span class="hi">↑</span> ':''):'';
+return '<div class="row" data-a="item" data-id="'+esc(n)+'"><div class="g"><b>'+esc(n)+'</b><span class="sm">'+P.length+' مرات · '+fdate(l.t)+'</span></div><div class="e"><b>'+ar+Q.lt(l.p,u)+'</b></div></div>'}).join('')+'</div>':'<p class="em">لا أثمنة مسجلة بعد.</p>'}
+else h+=D.H.length?'<div class="list">'+D.H.map(function(t){return '<div class="row" data-a="trip" data-id="'+t.id+'"><div class="g"><b>'+fdate(t.t)+'</b><span class="sm">'+t.L.length+' أغراض</span></div><div class="e"><b>'+money(t.sp)+'</b></div></div>'}).join('')+'</div>':'<p class="em">لا جولات محفوظة بعد.</p>';
+open(h)};
+A.hv=function(b){S.hv=+b.dataset.id;A.hist()};
+A.item=function(b){IT=b.dataset.id;itemView()};
+function itemView(){var n=IT,P=D.P[n]||[],u=(D.I[n]||{}).u,h=hd(n,'hist'),w=P.filter(function(x){return x.m!=='a'}),st='';
+if(w.length){var ps=w.map(function(x){return x.p}),av=ps.reduce(function(a,b){return a+b},0)/ps.length;st='<div class="strip"><div><span>أدنى</span><b>'+Q.lt(Math.min.apply(0,ps),u)+'</b></div><div><span>المتوسط</span><b>'+Q.lt(av,u)+'</b></div><div><span>أعلى</span><b>'+Q.lt(Math.max.apply(0,ps),u)+'</b></div></div>'}
+h+=st+'<div class="list">'+P.slice().reverse().map(function(x,i){return '<div class="row"><div class="g"><b>'+(x.m==='a'?n2(x.p)+' درهم (بمبلغ)':Q.lt(x.p,u)+(x.m==='n'?' / حبة':' / كغ'))+'</b><span class="sm">'+fdate(x.t)+'</span></div><button class="ib" data-a="pdel" data-id="'+(P.length-1-i)+'" aria-label="حذف">'+ic('trash')+'</button></div>'}).join('')+'</div>';open(h)}
+A.pdel=function(b){var P=D.P[IT];P.splice(+b.dataset.id,1);Q.save();itemView();Q.render()};
+A.trip=function(b){TR=b.dataset.id;tripView()};
+function tripView(){var t=D.H.filter(function(x){return x.id===TR})[0];if(!t){A.hist();return}
+var h=hd(fdate(t.t).replace(/<[^>]+>/g,''),'hist')+'<div class="strip"><div><span>خرجت بـ</span><b>'+money(t.b)+'</b></div><div><span>صرفت</span><b>'+money(t.sp)+'</b></div></div>';
+D.V.forEach(function(v){var L=t.L.filter(function(l){return l.v===v.id});if(!L.length)return;h+='<div class="vh"><i style="background:'+v.c+'"></i>'+esc(v.n)+'</div><div class="list">'+L.map(function(l){return '<div class="row"><div class="g"><b>'+esc(l.n)+'</b><span class="sm">'+Q.qtxt(l)+'</span></div><div class="e"><b>'+n2(Q.cost(l))+'</b></div></div>'}).join('')+'</div>'});
+h+='<button class="sec" data-a="tdel" style="color:var(--hi)">حذف الجولة (إلى السلة)</button>';open(h)}
+A.tdel=function(){var t=D.H.filter(function(x){return x.id===TR})[0];D.H=D.H.filter(function(x){return x!==t});Q.trashAdd('trip',fdate(t.t).replace(/<[^>]+>/g,''),t);Q.save();A.hist()};
+A.pedit=function(b){var l=Q.fl(b.dataset.id);S.el=l.id;open(hd(l.n)+'<label>البائع</label><div class="chips" style="margin:0 0 10px">'+D.V.map(function(v){return '<button class="chip'+(l.v===v.id?' on':'')+'" style="--c:'+v.c+'" data-a="setv" data-id="'+v.id+'">'+esc(v.n)+'</button>'}).join('')+'</div><button class="sec" data-a="del" style="color:var(--hi)">حذف من القائمة</button>')};
+A.setv=function(b){var l=Q.fl(S.el);l.v=b.dataset.id;D.I[l.n]=D.I[l.n]||{};D.I[l.n].v=l.v;Q.save();Q.close();Q.render()};
+A.del=function(){var l=Q.fl(S.el);D.T.L=D.T.L.filter(function(x){return x!==l});Q.trashAdd('line',l.n,l);D.P[l.n]=(D.P[l.n]||[]).filter(function(x){return x.lid!==l.id});Q.save();Q.close();Q.render();Q.toast('نُقل إلى السلة')};
+A.trash=function(){var h=hd('سلة المحذوفات','set')+(D.X.length?'<div class="list">'+D.X.map(function(x){return '<div class="row"><div class="g"><b>'+esc(x.n)+'</b><span class="sm">'+KN[x.k]+' · '+fdate(x.t)+'</span></div><button class="chip" data-a="trs" data-id="'+x.id+'">استرجاع</button><button class="ib" data-a="trx" data-id="'+x.id+'" aria-label="حذف نهائي">'+ic('x')+'</button></div>'}).join('')+'</div><button class="sec" data-a="trall" style="color:var(--hi)">إفراغ السلة</button>':'<p class="em">السلة فارغة. تُمحى العناصر تلقائيًا بعد 30 يومًا.</p>');open(h)};
+A.trs=function(b){Q.restoreTrash(b.dataset.id);Q.render();A.trash();Q.toast('تم الاسترجاع')};
+A.trx=function(b){D.X=D.X.filter(function(x){return x.id!==b.dataset.id});Q.save();A.trash()};
+A.trall=function(){D.X=[];Q.save();A.trash()};
+A.set=function(){var h=hd('الإعدادات')+'<label>الوحدة الكبيرة في العرض</label><div class="seg3">'+[['DH','درهم'],['R','ريال']].map(function(a){return '<button data-a="prim" data-id="'+a[0]+'" class="'+(D.s.prim===a[0]?'on':'')+'">'+a[1]+'</button>'}).join('')+'</div>'
++'<label>بعد الحفظ، افتح الغرض التالي تلقائيًا</label><div class="seg3"><button data-a="nxt" data-id="1" class="'+(D.s.next?'on':'')+'">تشغيل</button><button data-a="nxt" data-id="0" class="'+(D.s.next?'':'on')+'">إيقاف</button></div><label>البائعون</label>';
+D.V.forEach(function(v){h+='<div class="vr"><input data-c="vn" data-id="'+v.id+'" value="'+esc(v.n)+'"><button data-a="vdel" data-id="'+v.id+'">'+ic('trash')+'</button></div>'});
+h+='<div class="vr"><input id="nv" placeholder="بائع جديد"><button data-a="vadd" style="color:var(--ac)">'+ic('plus')+'</button></div>'
++'<button class="sec" data-a="trash">سلة المحذوفات ('+D.X.length+')</button><label style="margin-top:14px">النسخ الاحتياطي</label><div id="bks" class="sm">جارٍ الفحص…</div><div id="bkl"></div>'
++'<details style="margin-top:10px"><summary class="sm">نسخ احتياطي بالنص</summary><textarea id="bk"></textarea><div class="seg3" style="margin-top:8px"><button data-a="bcopy">نسخ البيانات</button><button data-a="brest">استرجاع من النص</button></div></details>';open(h);bkInfo()};
+function bkInfo(){var B=Q.bk;if(!B.has()){$('#bks').textContent='النسخ التلقائي يعمل داخل التطبيق المثبّت فقط.';return}
+B.call('status').then(function(s){if(!$('#bks'))return;if(!s.granted){$('#bks').innerHTML='يلزم إذن «الوصول إلى كل الملفات» للنسخ التلقائي.<button class="sec" data-a="bperm">منح الإذن</button>';return}
+$('#bks').innerHTML='المجلد: <bdi>'+esc(s.dir)+'</bdi><button class="sec" data-a="bnow">نسخة الآن</button>';return B.call('list').then(function(r){if(!$('#bkl'))return;var f=r.files.sort(function(a,b){return b.mod-a.mod});
+$('#bkl').innerHTML=f.length?'<div class="list" style="margin-top:8px">'+f.map(function(x){return '<div class="row"><div class="g"><b style="font-size:15px"><bdi>'+esc(x.name)+'</bdi></b><span class="sm">'+fdate(x.mod)+'</span></div><button class="chip" data-a="brs" data-id="'+esc(x.name)+'">استرجاع</button></div>'}).join('')+'</div>':''})}).catch(function(){if($('#bks'))$('#bks').textContent='تعذّر الوصول إلى الملفات.'})}
+A.bperm=function(){Q.bk.call('request')};
+A.bnow=function(){Q.bk.manual().then(function(){Q.toast('تم حفظ نسخة');bkInfo()},function(){Q.toast('لم تُحفظ النسخة')})};
+A.brs=function(b){var n=b.dataset.id;Q.bk.restore(n).then(function(){Q.close();Q.toast('تم الاسترجاع')},function(){Q.toast('الملف غير صالح')})};
+A.prim=function(b){D.s.prim=b.dataset.id;Q.save();A.set();Q.render()};
+A.nxt=function(b){D.s.next=b.dataset.id==='1';Q.save();A.set()};
+A.vdel=function(b){var id=b.dataset.id,v=Q.vend(id);if(D.V.length<2||Q.vl(id).length){Q.toast('لا يمكن الحذف: عنده أغراض أو هو الأخير');return}D.V=D.V.filter(function(x){return x.id!==id});Q.trashAdd('vendor',v.n,v);Q.save();A.set();Q.render()};
+A.vadd=function(){var n=$('#nv').value.trim();if(!n)return;D.V.push({id:'v'+Q.uid(),n:n,c:Q.COL[D.V.length%Q.COL.length]});Q.save();A.set();Q.render()};
+A.bcopy=function(){var t=JSON.stringify(D);$('#bk').value=t;try{navigator.clipboard.writeText(t).then(function(){Q.toast('تم النسخ')},function(){Q.toast('حدد النص وانسخه')})}catch(e){Q.toast('حدد النص وانسخه')}};
+A.brest=function(){try{var x=JSON.parse($('#bk').value);x=x.d||x;if(!x.V||!x.T)throw 0;Q.setD(x);Q.save();Q.close();Q.render();Q.toast('تم الاسترجاع')}catch(e){Q.toast('النص غير صالح')}}})();
