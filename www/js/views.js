@@ -5,15 +5,16 @@ function vPrep(){S.av=S.av&&Q.vend(S.av)?S.av:D.V[0].id;
 var h='<div class="card"><label>شحال في جيبي</label>'+mf('bud',D.T.b)+'</div>';
 h+='<div class="card"><label>غرض نفد</label><input id="nm" list="dl" placeholder="اسم الغرض" autocomplete="off"><datalist id="dl">'+Object.keys(D.I).map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist><div class="chips" id="vc">'+vchips()+'</div><button class="pri" data-a="add">إضافة</button></div>';
 var fr=Q.freq();if(fr.length)h+='<div class="card"><label>متكرّرة</label><div class="chips" style="margin:0">'+fr.map(function(n){return '<button class="chip" data-a="quick" data-id="'+esc(n)+'">+ '+esc(n)+'</button>'}).join('')+'</div></div>';
+if(D.T.L.some(function(l){return !l.st}))h+='<button class="sec" data-a="share">مشاركة القائمة</button>';
 D.V.forEach(function(v){var L=Q.vl(v.id);if(!L.length)return;h+='<div class="vh"><i style="background:'+v.c+'"></i>'+esc(v.n)+'<span>'+L.length+'</span></div><div class="list">'+L.map(function(l){return '<div class="row" data-a="pedit" data-id="'+l.id+'"><div class="g"><b'+(l.st?' class="dn"':'')+'>'+esc(l.n)+'</b></div>'+(l.st?'<span class="sm">اشتُري</span>':'')+'</div>'}).join('')+'</div>'});
 return h}
 function vShop(){var T=D.T,sp=Q.spent();
 if(!S.v||!Q.vend(S.v))S.v=(D.V.filter(function(v){return Q.vl(v.id).length})[0]||D.V[0]).id;var sv=S.v,tot=Q.vtot(sv);
 var h='<div class="strip">'+[['خرجت بـ',T.b],['صرفت',sp],['الباقي',T.b-sp]].map(function(a,i){return '<div><span>'+a[0]+'</span><b'+(i===2&&a[1]<0?' class="hi"':'')+'>'+money(a[1])+'</b><em>'+money2(a[1])+'</em></div>'}).join('')+'</div>';
-h+='<div class="tabs">'+D.V.map(function(v){var n=Q.vl(v.id).filter(function(l){return !l.st}).length;return '<button class="chip'+(sv===v.id?' on':'')+'" style="--c:'+v.c+'" data-a="sv" data-id="'+v.id+'">'+esc(v.n)+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'</div>';
-var said=T.said[sv],todo=Q.vl(sv).filter(function(l){return !l.st}).length,ch='';
+h+='<div class="tabs">'+D.V.map(function(v){var n=Q.vl(v.id).filter(function(l){return !l.st}).length;return '<button class="chip'+(sv===v.id?' on':'')+'" style="--c:'+v.c+'" data-a="sv" data-id="'+v.id+'">'+esc(v.n)+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-a="exp">+ مصروف</button></div>';
+var said=T.said[sv],todo=Q.vl(sv).filter(function(l){return !l.st}).length,ch='',o=D.O[sv]||0,bt=o>0?'بقا ليه عندي '+money(o):o<0?'بقا ليا عندو '+money(-o):'العالق مع البائع: لا شيء';
 if(said!=null){var d=said-tot;ch=Math.abs(d)<0.005?'<span class="lo">✓ مطابق</span>':'<span class="wr">الفرق '+(d>0?'+':'')+n2(d)+'</span>'}
-h+='<div class="card"><label><span>مجموع '+esc(Q.vend(sv).n)+'</span><span>'+(todo?'بقي '+todo+' غير مشترى':'')+'</span></label><div class="tot">'+money(tot)+'</div><div class="sm">'+money2(tot)+'</div><label style="margin:10px 0 6px"><span>قال البائع</span>'+ch+'</label>'+mf('said',said)+'</div>';
+h+='<div class="card"><label><span>مجموع '+esc(Q.vend(sv).n)+'</span><span>'+(todo?'بقي '+todo+' غير مشترى':'')+'</span></label><div class="tot">'+money(tot)+'</div><div class="sm">'+money2(tot)+'</div><div class="chips" style="margin:8px 0 0"><button class="chip" data-a="bal">'+bt+'</button></div><label style="margin:10px 0 6px"><span>قال البائع</span>'+ch+'</label>'+mf('said',said)+'</div>';
 var L=Q.vl(sv);
 if(!L.length)h+='<p class="em">لا أغراض عند هذا البائع.</p>';
 else h+='<div class="list">'+L.map(function(l){
@@ -25,10 +26,11 @@ h+='<div class="bar"><button class="sq" data-a="addhere" aria-label="إضافة 
 return h}
 function vTally(){var T=D.T,sp=Q.spent(),h='<div class="card">',any=false;
 D.V.forEach(function(v){var t=Q.vtot(v.id),p=T.pay[v.id];if(!t&&p==null)return;any=true;h+='<div class="sum"><span>'+esc(v.n)+(p!=null&&Math.abs(p-t)>0.004?'<br><span class="sm">الحساب '+n2(t)+'</span>':'')+'</span><b>'+money(p!=null?p:t)+'</b></div>'});
+(T.ex||[]).forEach(function(x){any=true;h+='<div class="sum"><span>'+esc(x.l)+'</span><span><b>'+money(x.a)+'</b><button class="ib" style="display:inline-flex;vertical-align:middle" data-a="expx" data-id="'+x.id+'">'+ic('x')+'</button></span></div>'});
 if(!any)h+='<p class="em">لم تشترِ شيئًا بعد.</p>';
 h+='<div class="sum"><span>مجموع ما صُرف</span><b>'+money(sp)+'</b></div><div class="sum"><span>خرجت بـ</span><b>'+money(T.b)+'</b></div></div>';
-var ex=T.b-sp,ch='';if(T.real!=null){var d=T.real-ex;ch=Math.abs(d)<0.005?'<span class="lo">✓ مطابق</span>':'<span class="wr">الفرق '+(d>0?'+':'')+n2(d)+'</span>'}
-h+='<div class="card"><label>المفروض في جيبي الآن</label><div class="tot">'+money(ex)+'</div><div class="sm">'+money2(ex)+'</div><label style="margin:10px 0 6px"><span>ما في جيبي فعلًا</span>'+ch+'</label>'+mf('real',T.real)+'</div><button class="pri" data-a="fin">إنهاء الجولة</button><div style="height:16px"></div>';
+var bl=D.V.filter(function(v){return D.O[v.id]}).map(function(v){var o=D.O[v.id];return '<div class="sum"><span>'+esc(v.n)+'</span><b class="'+(o>0?'wr':'lo')+'">'+(o>0?'بقا ليه عندي ':'بقا ليا عندو ')+money(Math.abs(o))+'</b></div>'}).join(''),ex=T.b-sp,ch='';if(T.real!=null){var d=T.real-ex;ch=Math.abs(d)<0.005?'<span class="lo">✓ مطابق</span>':'<span class="wr">الفرق '+(d>0?'+':'')+n2(d)+'</span>'}
+h+='<div class="card"><label>المفروض في جيبي الآن</label><div class="tot">'+money(ex)+'</div><div class="sm">'+money2(ex)+'</div><label style="margin:10px 0 6px"><span>ما في جيبي فعلًا</span>'+ch+'</label>'+mf('real',T.real)+'</div>'+(bl?'<div class="card"><label>العالق مع البائعين</label>'+bl+'</div>':'')+'<button class="sec" data-a="exp" style="margin:0 0 10px">+ مصروف عابر</button><button class="pri" data-a="fin">إنهاء الجولة</button><div style="height:16px"></div>';
 return h}
 Q.render=function(){Q.live=null;var $=Q.$;$('#ttl').textContent=['تحضير القائمة','عند البائع','جرد الجيب'][S.tab];$('#gear').innerHTML=ic('gear');$('#hist').innerHTML=ic('clock');
 $('#nav').innerHTML=['list','basket','receipt'].map(function(i,k){return '<button data-a="tab" data-id="'+k+'" class="'+(S.tab===k?'on':'')+'">'+ic(i)+'<span>'+['التحضير','عند البائع','الجرد'][k]+'</span></button>'}).join('');
