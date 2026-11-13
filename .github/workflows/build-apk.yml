@@ -40,6 +40,7 @@ jobs:
         run: |
           npm install
           npx cap add android
+          python3 patch_android.py
 
       - name: Version and icons
         run: |
