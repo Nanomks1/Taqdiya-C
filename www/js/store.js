@@ -1,6 +1,6 @@
 (function(){'use strict';
 var K='tq2',DAY=864e5,COL=['#B7791F','#2F855A','#DD6B20','#C53030','#6B46C1','#2B6CB0','#B83280','#0F766E'];
-var SCHEMA={prim:{d:'DH',ok:['DH','R']},next:{d:false,ok:[true,false]}};
+var SCHEMA={prim:{d:'DH',ok:['DH','R']},next:{d:false,ok:[true,false]},theme:{d:'auto',ok:['auto','light','dark']},acc:{d:'#0F766E',re:/^#[0-9a-fA-F]{6}$/},fs:{d:100,min:85,max:140}};
 var D={},S={tab:0,v:null,av:null,hv:0},U={};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -12,7 +12,7 @@ function fdate(t){var d=new Date(t);return '<bdi>'+d.getDate()+'/'+(d.getMonth()
 function money(x){return D.s.prim==='DH'?n2(x)+' درهم':R(x)+' ريال'}
 function money2(x){return D.s.prim==='DH'?R(x)+' ريال':n2(x)+' درهم'}
 function lt(x,u){return u==='R'?R(x)+' ريال':trim(x)+' درهم'}
-function norm(s){s=s&&typeof s==='object'?s:{};var o={};Object.keys(SCHEMA).forEach(function(k){var c=SCHEMA[k];o[k]=c.ok.indexOf(s[k])>=0?s[k]:c.d});return o}
+function norm(s){s=s&&typeof s==='object'?s:{};var o={};Object.keys(SCHEMA).forEach(function(k){var c=SCHEMA[k],v=s[k];o[k]=c.ok?(c.ok.indexOf(v)>=0?v:c.d):c.re?(typeof v==='string'&&c.re.test(v)?v:c.d):(typeof v==='number'&&v>=c.min&&v<=c.max?v:c.d)});return o}
 function defV(){return ['العطار','مول الخضرة','مول الفواكه','مول البيض','مول الدجاج','الجزار'].map(function(n,i){return{id:'v'+i,n:n,c:COL[i]}})}
 function ls(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function parse(s){try{var o=JSON.parse(s);return o&&o.V&&o.T?o:null}catch(e){return null}}
@@ -21,7 +21,7 @@ d.T={b:+t.b||0,L:Array.isArray(t.L)?t.L:[],pay:t.pay||{},said:t.said||{},ex:Arra
 d.H=(Array.isArray(o.H)?o.H:[]).map(function(h){h.id=h.id||uid();h.L=h.L||[];h.pay=h.pay||{};h.ex=h.ex||[];return h});d.P=o.P||{};d.O=o.O&&typeof o.O==='object'?o.O:{};d.X=Array.isArray(o.X)?o.X:[];return d}
 function setD(o){var d=fix(o);Object.keys(D).forEach(function(k){delete D[k]});Object.assign(D,d)}
 function purge(){var c=Date.now()-30*DAY;D.X=D.X.filter(function(x){return x.t>c})}
-function load(){setD(parse(ls(K))||parse(ls(K+'p'))||parse(ls('tq1'))||{V:[],T:{}});purge()}
+function load(){setD(parse(ls(K))||parse(ls(K+'p'))||parse(ls('tq1'))||{V:[],T:{}});purge();if(window.TH)TH.apply(D.s)}
 var Q={D:D,S:S,U:U,COL:COL,uid:uid,esc:esc,num:num,trim:trim,n2:n2,R:R,fdate:fdate,money:money,money2:money2,lt:lt,setD:setD,load:load,onSave:null};
 Q.save=function(){try{var s=JSON.stringify(D),o=localStorage.getItem(K);if(o&&o!==s)localStorage.setItem(K+'p',o);localStorage.setItem(K,s)}catch(e){}if(Q.onSave)Q.onSave()};
 Q.cost=function(l){return l.m==='a'?l.a:l.p*l.q};

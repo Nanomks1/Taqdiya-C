@@ -19,8 +19,8 @@ vn:function(e){var v=Q.vend(e.dataset.id);if(v&&e.value.trim()){v.n=e.value.trim
 document.addEventListener('click',function(e){var b=e.target.closest('[data-a],[data-f]');if(!b)return;
 if(b.dataset.f){var f=b.dataset.f,dh=mv(f);U[f]=b.dataset.u;$('#'+f).value=dh?(U[f]==='DH'?Q.trim(dh):String(Q.R(dh))):'';b.parentNode.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});if(Q.live)Q.live();return}
 var a=A[b.dataset.a];if(a)a(b)});
-document.addEventListener('input',function(e){var t=e.target;if(t.id==='nm'){var it=D.I[t.value.trim()];if(it&&Q.vend(it.v)){S.av=it.v;$('#vc').innerHTML=Q.vchips()}}if(Q.live)Q.live()});
-document.addEventListener('change',function(e){var c=e.target.dataset.c,open=$('#sh').classList.contains('o');if(c&&CHG[c]&&(!open||c==='vn'))CHG[c](e.target)});
+document.addEventListener('input',function(e){var t=e.target;if(t.id==='hue'){D.s.acc=TH.hex(+t.value,70,0.4);TH.apply(D.s);document.querySelectorAll('.sw.on').forEach(function(x){x.classList.remove('on')});return}if(t.id==='fsl'){D.s.fs=+t.value;$('#fv').textContent=t.value+'%';TH.apply(D.s);return}if(t.id==='nm'){var it=D.I[t.value.trim()];if(it&&Q.vend(it.v)){S.av=it.v;$('#vc').innerHTML=Q.vchips()}}if(Q.live)Q.live()});
+document.addEventListener('change',function(e){if(e.target.id==='hue'||e.target.id==='fsl'){Q.save();return}var c=e.target.dataset.c,open=$('#sh').classList.contains('o');if(c&&CHG[c]&&(!open||c==='vn'))CHG[c](e.target)});
 A.exp=function(){Q.open(Q.hd('مصروف عابر')+'<input id="el" placeholder="مثلًا: خبز" autocomplete="off"><div class="chips">'+['خبز','طاكسي','كيس','ماء'].map(function(n){return '<button class="chip" data-a="expl" data-id="'+n+'">'+n+'</button>'}).join('')+'</div><label style="margin-top:10px">المبلغ</label>'+Q.mf('ea',0)+'<button class="pri" data-a="expok">إضافة</button>')};
 A.expl=function(b){$('#el').value=b.dataset.id};
 A.expok=function(){var a=mv('ea');if(a<=0){Q.toast('أدخل المبلغ');return}D.T.ex.push({id:Q.uid(),l:$('#el').value.trim()||'مصروف',a:a});Q.save();Q.close();Q.render();Q.toast('أُضيف المصروف')};
