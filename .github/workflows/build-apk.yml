@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -23,7 +23,7 @@ jobs:
 
       - name: Check signing secrets
         run: |
-          for v in KEYSTORE_B64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+          for v in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
             if [ -z "${!v}" ]; then echo "::error::Missing secret $v"; exit 1; fi
           done
 
@@ -51,7 +51,7 @@ jobs:
       - name: Sign APK
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          echo "$KEYSTORE_B64" | base64 -d > release.keystore
+          echo "$KEYSTORE_BASE64" | base64 -d > release.keystore
           UN=android/app/build/outputs/apk/release/app-release-unsigned.apk
           "$BT/zipalign" -p -f 4 "$UN" aligned.apk
           "$BT/apksigner" sign --ks release.keystore --ks-key-alias "$KEY_ALIAS" \
