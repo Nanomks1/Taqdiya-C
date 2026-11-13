@@ -1,7 +1,16 @@
 name: Build APK
 
 on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/make-keystore.yml'
   workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
