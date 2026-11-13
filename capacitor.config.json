@@ -1,0 +1,6 @@
+{
+  "appId": "az.pdr.taqdiya",
+  "appName": "التقدية",
+  "webDir": "www",
+  "android": { "adjustMarginsForEdgeToEdge": "auto" }
+}
